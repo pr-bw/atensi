@@ -62,7 +62,7 @@
     </div>
 
     <div class="fab-button bottom-right" style="margin-bottom: 70px;">
-        <a href="/karyawan/izin/buat-izin" class="fab" style="background-color: #FFF8DB">
+        <a href="/guru/izin/buat-izin" class="fab" style="background-color: #FFF8DB">
             <ion-icon name="add-outline" style="color: #000"></ion-icon>
         </a>
     </div>

@@ -18,7 +18,7 @@ class Authenticate extends Middleware
             if (request()->is('panel/*')) {
                 return route('login.administrator');
             } else {
-                return route('login.karyawan');
+                return route('login.guru');
             }
         }
     }

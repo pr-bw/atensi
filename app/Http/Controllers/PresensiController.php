@@ -2,24 +2,25 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\RekapPresensiExport;
+use App\Models\PengajuanIzin;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\ValidationException;
+use Maatwebsite\Excel\Facades\Excel;
 
 class PresensiController extends Controller
 {
     public function create()
     {
         $hari_ini = date("Y-m-d");
-        $nuptk = Auth::guard('karyawan')->user()->nuptk;
+        $nuptk = Auth::guard('guru')->user()->nuptk;
         $check = DB::table('presensi')->where('tanggal_presensi', $hari_ini)->where('nuptk', $nuptk)->count();
-        return view('presensi.buat_presensi_karyawan', compact('check'));
+        $loc_sekolah = DB::table('konfigurasi_lokasi_sekolah')->where('id', 1)->first();
+        return view('presensi.buat_presensi_guru', compact('check', 'loc_sekolah'));
     }
 
     function distance($lat1, $lon1, $lat2, $lon2)
@@ -38,19 +39,20 @@ class PresensiController extends Controller
 
     public function simpanPresensi(Request $request)
     {
-        $nuptk = Auth::guard('karyawan')->user()->nuptk;
+        $nuptk = Auth::guard('guru')->user()->nuptk;
         $tanggal_presensi = date("Y-m-d");
         $jam = date("H:i:s");
-
-        $latitude_kantor = -6.410222;
-        $longitude_kantor = 106.720293;
+        $loc_sekolah = DB::table('konfigurasi_lokasi_sekolah')->where('id', 1)->first();
+        $loc = explode(",", $loc_sekolah->lokasi_sekolah);
+        $latitude_sekolah = $loc[0];
+        $longitude_sekolah = $loc[1];
 
         $lokasi = $request->lokasi;
         $lokasi_user = explode(",", $lokasi);
         $latitude_user = $lokasi_user[0];
         $longitude_user = $lokasi_user[1];
 
-        $jarak = $this->distance($latitude_kantor, $longitude_kantor, $latitude_user, $longitude_user);
+        $jarak = $this->distance($latitude_sekolah, $longitude_sekolah, $latitude_user, $longitude_user);
         $radius = round($jarak["meters"]);
 
         $check = DB::table('presensi')->where('tanggal_presensi', $tanggal_presensi)->where('nuptk', $nuptk)->count();
@@ -60,10 +62,10 @@ class PresensiController extends Controller
         $image_parts = explode(";base64,", $image);
         $image_base64 = base64_decode($image_parts[1]);
 
-        if ($radius > 5) {
+        if ($radius > $loc_sekolah->radius) {
             return response()->json([
                 'status' => 'error',
-                'message' => "Maaf, Anda Berada Di Luar Radius, Jarak Anda " . $radius . " meter dari Kantor",
+                'message' => "Maaf, Anda Berada Di Luar Radius, Jarak Anda " . $radius . " meter dari sekolah",
                 'type' => 'radius'
             ]);
         } else {
@@ -127,161 +129,31 @@ class PresensiController extends Controller
         }
     }
 
-    // public function editProfile()
-    // {
-    //     $karyawan = auth()->user();
-    //     return view('presensi.perbarui_profil_karyawan', compact('karyawan'));
-    // }
-
-    // public function perbaruiProfile(Request $request, $nuptk)
-    // {
-    //     $karyawan = DB::table('karyawan')->where('nuptk', $nuptk)->first();
-
-    //     if (!$karyawan) {
-    //         return response()->json([
-    //             'status' => 'error',
-    //             'message' => 'Karyawan tidak ditemukan.'
-    //         ], 404);
-    //     }
-
-    //     $rules = [
-    //         'nama_lengkap' => 'sometimes|required|string|max:100',
-    //         'nomor_hp' => 'sometimes|required|numeric|digits_between:10,13',
-    //         'password' => 'sometimes|required|string|min:8',
-    //         'foto' => 'sometimes|required|image|mimes:jpeg,jpg,png|max:2048',
-    //     ];
-
-    //     $validator = Validator::make($request->all(), $rules);
-
-    //     if ($validator->fails()) {
-    //         return response()->json([
-    //             'status' => 'error',
-    //             'message' => $validator->errors()->first()
-    //         ], 422);
-    //     }
-
-    //     $data = [];
-    //     $updatedFields = [];
-
-    //     foreach ($rules as $field => $rule) {
-    //         if ($request->has($field)) {
-    //             if ($field === 'password') {
-    //                 $data[$field] = Hash::make($request->$field);
-    //             } elseif ($field === 'foto') {
-    //                 $foto = $nuptk . '.' . $request->file('foto')->getClientOriginalExtension();
-    //                 $folderPath = "uploads/karyawan";
-    //                 if ($karyawan->foto) {
-    //                     Storage::disk('public')->delete($folderPath . '/' . $karyawan->foto);
-    //                 }
-    //                 $request->file('foto')->storeAs($folderPath, $foto, 'public');
-    //                 $data[$field] = $foto;
-    //             } else {
-    //                 $data[$field] = $request->$field;
-    //             }
-    //             $updatedFields[] = $field;
-    //         }
-    //     }
-
-    //     if (!empty($data)) {
-    //         $update = DB::table('karyawan')->where('nuptk', $nuptk)->update($data);
-
-    //         if ($update) {
-    //             return response()->json([
-    //                 'status' => 'success',
-    //                 'message' => 'Profil berhasil diperbarui: ' . implode(', ', $updatedFields),
-    //                 'reload' => in_array('foto', $updatedFields)
-    //             ]);
-    //         } else {
-    //             return response()->json([
-    //                 'status' => 'error',
-    //                 'message' => 'Gagal memperbarui profil.'
-    //             ], 500);
-    //         }
-    //     } else {
-    //         return response()->json([
-    //             'status' => 'error',
-    //             'message' => 'Tidak ada perubahan yang dilakukan.'
-    //         ], 400);
-    //     }
-    // }
-
     public function editProfile()
     {
-        $nuptk = Auth::guard('karyawan')->user()->nuptk;
-        $karyawan = DB::table('karyawan')->where('nuptk', $nuptk)->first();
-        return view('presensi.perbarui_profil_karyawan', compact('karyawan', 'nuptk'));
+        $nuptk = Auth::guard('guru')->user()->nuptk;
+        $guru = DB::table('guru')->where('nuptk', $nuptk)->first();
+        return view('presensi.perbarui_profil_guru', compact('guru', 'nuptk'));
     }
-
-    // public function perbaruiProfile(Request $request, $nuptk)
-    // {
-    //     $karyawan = DB::table('karyawan')->where('nuptk', $nuptk)->first();
-
-    //     if (!$karyawan) {
-    //         return response()->json([
-    //             'status' => 'error',
-    //             'message' => 'Karyawan tidak ditemukan.'
-    //         ], 404);
-    //     }
-
-    //     $rules = [
-    //         'nama_lengkap' => 'sometimes|required|string|max:100|alpha_num',
-    //         'nomor_hp' => 'sometimes|required|numeric|digits_between:10,13',
-    //         'password' => 'sometimes|required|string|min:8',
-    //         'foto' => 'sometimes|required|image|mimes:jpeg,jpg,png|max:2048',
-    //     ];
-
-    //     $validator = Validator::make($request->all(), $rules);
-
-    //     if ($validator->fails()) {
-    //         if ($request->ajax()) {
-    //             return response()->json([
-    //                 'status' => 'error',
-    //                 'message' => 'There are incorrect values in the form!',
-    //                 'errors' => $validator->errors()->toArray()
-    //             ], 422);
-    //         }
-
-    //         throw ValidationException::withMessages($validator->errors()->toArray());
-    //     }
-
-    //     // Simulate update operation
-    //     // Replace with your actual update logic
-    //     $updateSuccess = true;
-
-    //     if ($updateSuccess) {
-    //         return response()->json([
-    //             'status' => 'success',
-    //             'message' => 'Profil berhasil diperbarui.'
-    //         ]);
-    //     } else {
-    //         return response()->json([
-    //             'status' => 'error',
-    //             'message' => 'Gagal memperbarui profil. Silakan coba lagi.'
-    //         ], 500);
-    //     }
-    // }
 
     public function perbaruiProfile(Request $request, $nuptk)
     {
-        $karyawan = DB::table('karyawan')->where('nuptk', $nuptk)->first();
+        // Fetch the guru record
+        $guru = DB::table('guru')->where('nuptk', $nuptk)->first();
 
-        if (!$karyawan) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Karyawan tidak ditemukan.'
-            ], 404);
+        // If guru not found, return error response
+        if (!$guru) {
+            return redirect()->back()->with('error', 'guru tidak ditemukan.');
         }
 
+        // Define validation rules and custom error messages
         $rules = [
-            'nama_lengkap' => 'sometimes|required|string|max:100|regex:/^[a-zA-Z0-9\s]+$/',
-            'nomor_hp' => 'sometimes|required|numeric|digits_between:10,13',
-            'password' => 'sometimes|nullable|string|min:8',
-            'foto' => 'sometimes|nullable|image|mimes:jpeg,jpg,png|max:2048',
+            'nomor_hp' => 'nullable|numeric|digits_between:10,13',
+            'password' => 'nullable|string|min:8',
+            'foto' => 'nullable|image|mimes:jpeg,jpg,png|max:2048',
         ];
 
         $messages = [
-            'nama_lengkap.max' => 'Nama maksimal 100 karakter.',
-            'nama_lengkap.regex' => 'Nama hanya boleh mengandung huruf, angka, dan spasi.',
             'nomor_hp.digits_between' => 'Nomor handphone harus antara 10 sampai 13 digit.',
             'nomor_hp.numeric' => 'Nomor handphone hanya boleh berisi angka.',
             'password.min' => 'Password minimal 8 karakter.',
@@ -290,56 +162,65 @@ class PresensiController extends Controller
             'foto.max' => 'Ukuran foto maksimal 2MB.',
         ];
 
+        // Validate the request data
         $validator = Validator::make($request->all(), $rules, $messages);
 
+        // If validation fails, return to the form with errors
         if ($validator->fails()) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Ada kesalahan dalam formulir!',
-                'errors' => $validator->errors()->toArray()
-            ], 422);
+            return redirect()->back()->withErrors($validator)->withInput();
         }
 
-        // Update logic
-        $data = $request->only(['nama_lengkap', 'nomor_hp']);
+        // Prepare data to be updated
+        $data = [];
+        $updatedFields = [];
+
+        if ($request->filled('nomor_hp') && $request->nomor_hp !== $guru->nomor_hp) {
+            $data['nomor_hp'] = $request->input('nomor_hp');
+            $updatedFields[] = 'Nomor HP';
+        }
 
         if ($request->filled('password')) {
             $data['password'] = bcrypt($request->input('password'));
+            $updatedFields[] = 'Password';
         }
 
         if ($request->hasFile('foto')) {
-            // Handle file upload
-            $file = $request->file('foto');
-            $filename = time() . '_' . $file->getClientOriginalName();
-            $path = $file->storeAs('public/foto', $filename);
-            $data['foto'] = $filename;
+            $foto = $nuptk . '.' . $request->file('foto')->getClientOriginalExtension();
+            $folderPath = "uploads/guru";
+            $request->file('foto')->storeAs($folderPath, $foto, 'public');
+            $data['foto'] = $foto;
+            $updatedFields[] = 'Foto Profile';
+        }
+
+        if (empty($data)) {
+            return redirect()->back()->with('warning', 'Tidak ada data yang diperbarui.');
         }
 
         try {
-            DB::table('karyawan')->where('nuptk', $nuptk)->update($data);
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Profil berhasil diperbarui.'
-            ]);
+            // Update the guru record
+            DB::table('guru')->where('nuptk', $nuptk)->update($data);
+
+            // Prepare success message
+            $successMessage = 'Profil berhasil diperbarui. Data yang diperbarui: ' . implode(', ', $updatedFields) . '.';
+
+            // Return success response
+            return redirect()->back()->with('success', $successMessage);
         } catch (\Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Gagal memperbarui profil. Silakan coba lagi.'
-            ], 500);
+            // Return error response in case of any exception
+            return redirect()->back()->with('error', 'Gagal memperbarui profil. Silakan coba lagi.');
         }
     }
-
 
     public function riwayat()
     {
         $nama_bulan = [" ", "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
 
-        return view('presensi.riwayat_presensi_karyawan', compact('nama_bulan'));
+        return view('presensi.riwayat_presensi_guru', compact('nama_bulan'));
     }
 
     public function dapatkanRiwayat(Request $request)
     {
-        $nuptk = Auth::guard('karyawan')->user()->nuptk;
+        $nuptk = Auth::guard('guru')->user()->nuptk;
         $bulan = $request->input('bulan');
         $tahun = $request->input('tahun');
 
@@ -356,19 +237,19 @@ class PresensiController extends Controller
 
     public function listIzin()
     {
-        $nuptk = Auth::guard('karyawan')->user()->nuptk;
+        $nuptk = Auth::guard('guru')->user()->nuptk;
         $data_izin = DB::table('pengajuan_izin')->where('nuptk', $nuptk)->get();
         return view('presensi.izin', compact('data_izin'));
     }
 
     public function buatIzin()
     {
-        return view('presensi.buat_izin_karyawan');
+        return view('presensi.buat_izin_guru');
     }
 
-    public function storeIzin(Request $request)
+    public function simpanIzin(Request $request)
     {
-        $nuptk = Auth::guard('karyawan')->user()->nuptk;
+        $nuptk = Auth::guard('guru')->user()->nuptk;
         $tanggal_izin = $request->tanggal_izin;
         $status = $request->status;
         $keterangan = $request->keterangan;
@@ -383,24 +264,24 @@ class PresensiController extends Controller
         $simpan = DB::table('pengajuan_izin')->insert($data);
 
         if ($simpan) {
-            return redirect('/presensi/izin')->with(['success' => 'Data Berhasil Disimpan']);
+            return redirect('/guru/izin/buat-izin')->with(['success' => 'Data Berhasil Disimpan']);
         } else {
-            return redirect('/presensi/izin')->with(['error' => 'Data Gagal Disimpan']);
+            return redirect('/guru/izin/buat-izin')->with(['error' => 'Data Gagal Disimpan']);
         }
     }
 
-    public function monitoring()
+    public function monitoringPresensi()
     {
-        return view('presensi.monitoring');
+        return view('presensi.monitoring_presensi');
     }
 
-    public function getPresensi(Request $request)
+    public function tampilkanRekapPresensiHarian(Request $request)
     {
         $tanggal_presensi = $request->input('tanggal');
 
         $presensi = DB::table('presensi')
-            ->select('presensi.*', 'karyawan.nama_lengkap', 'karyawan.jabatan')
-            ->join('karyawan', 'presensi.nuptk', '=', 'karyawan.nuptk')
+            ->select('presensi.*', 'guru.nama_lengkap', 'guru.mapel')
+            ->join('guru', 'presensi.nuptk', '=', 'guru.nuptk')
             ->where('presensi.tanggal_presensi', $tanggal_presensi)
             ->get();
 
@@ -408,16 +289,16 @@ class PresensiController extends Controller
             return '<tr><td colspan="9">Tidak ada data presensi ditemukan untuk tanggal ini.</td></tr>';
         }
 
-        $html = view('presensi.getpresensi', compact('presensi'))->render();
-        return $html;
+        return view('presensi.tampilkan-rekap-presensi-harian', compact('presensi'));
     }
+
 
     // public function tampilkanPeta(Request $request)
     // {
     //     $id = $request->id;
 
     //     $presensi = DB::table('presensi')
-    //         ->join('karyawan', 'presensi.nuptk', '=', 'karyawan.nuptk')
+    //         ->join('guru', 'presensi.nuptk', '=', 'guru.nuptk')
     //         ->where('presensi.id', $id)
     //         ->first();
 
@@ -425,16 +306,16 @@ class PresensiController extends Controller
     //     return view('presensi.showmap', compact('presensi'));
     // }
 
-    public function laporan()
+    public function laporanPresensi()
     {
         $nama_bulan = [" ", "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
 
-        $karyawan = DB::table('karyawan')->orderBy('nama_lengkap')->get();
+        $guru = DB::table('guru')->orderBy('nama_lengkap')->get();
 
-        return view('presensi.laporan', compact('nama_bulan', 'karyawan'));
+        return view('presensi.laporan-guru', compact('nama_bulan', 'guru'));
     }
 
-    public function cetakLaporan(Request $request)
+    public function cetakLaporanPresensi(Request $request)
     {
         $nuptk = $request->nuptk;
         $bulan = $request->bulan;
@@ -442,7 +323,7 @@ class PresensiController extends Controller
 
         $nama_bulan = [" ", "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
 
-        $karyawan = DB::table('karyawan')->where('nuptk', $nuptk)->first();
+        $guru = DB::table('guru')->where('nuptk', $nuptk)->first();
 
         $presensi = DB::table('presensi')
             ->where('nuptk', $nuptk)
@@ -451,24 +332,65 @@ class PresensiController extends Controller
             ->orderBy('tanggal_presensi')
             ->get();
 
-        return view('presensi.cetaklaporan', compact('bulan', 'tahun', 'nama_bulan', 'karyawan', 'presensi'));
+        return view('presensi.cetak_laporan_presensi', compact('bulan', 'tahun', 'nama_bulan', 'guru', 'presensi'));
     }
 
-    public function rekap()
+    // public function exportToPDF(Request $request)
+    // {
+    //     $nuptk = $request->nuptk;
+    //     $bulan = $request->bulan;
+    //     $tahun = $request->tahun;
+
+    //     $nama_bulan = [" ", "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+
+    //     $guru = DB::table('guru')->where('nuptk', $nuptk)->first();
+
+    //     $presensi = DB::table('presensi')
+    //         ->where('nuptk', $nuptk)
+    //         ->whereRaw('MONTH(tanggal_presensi)="' . $bulan . '"')
+    //         ->whereRaw('YEAR(tanggal_presensi)="' . $tahun . '"')
+    //         ->orderBy('tanggal_presensi')
+    //         ->get();
+
+    //     // Render view to HTML
+    //     $html = view('presensi.cetak_laporan_presensi', compact('bulan', 'tahun', 'nama_bulan', 'guru', 'presensi'))->render();
+
+    //     // Configure Dompdf
+    //     $options = new Options();
+    //     $options->set('isHtml5ParserEnabled', true);
+    //     $options->set('isPhpEnabled', true);
+
+    //     // Instantiate Dompdf
+    //     $dompdf = new Dompdf($options);
+
+    //     // Load HTML into Dompdf
+    //     $dompdf->loadHtml($html);
+
+    //     // Set paper size and orientation (optional)
+    //     $dompdf->setPaper('A4', 'portrait');
+
+    //     // Render PDF (optional)
+    //     $dompdf->render();
+
+    //     // Output PDF to browser
+    //     return $dompdf->stream("laporan_presensi.pdf");
+    // }
+
+    public function rekapitulasiPresensi()
     {
         $nama_bulan = [" ", "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
 
-        return view('presensi.rekap', compact('nama_bulan'));
+        return view('presensi.cetak-rekap', compact('nama_bulan'));
     }
 
-    public function cetakrekap(Request $request)
+    public function cetakRekapitulasiPresensi(Request $request)
     {
         $nama_bulan = [" ", "Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
         $bulan = $request->bulan;
         $tahun = $request->tahun;
         $rekap = DB::table('presensi')
             ->selectRaw(
-                'presensi.nuptk, nama_lengkap,
+                'CAST(presensi.nuptk AS CHAR) as nuptk, nama_lengkap,
                 MAX(IF(DAY(tanggal_presensi) = 1, CONCAT (jam_in, "-", IFNULL(jam_out, "00:00:00")), "")) as tanggal_1,
                 MAX(IF(DAY(tanggal_presensi) = 2, CONCAT (jam_in, "-", IFNULL(jam_out, "00:00:00")), "")) as tanggal_2,
                 MAX(IF(DAY(tanggal_presensi) = 3, CONCAT (jam_in, "-", IFNULL(jam_out, "00:00:00")), "")) as tanggal_3,
@@ -500,31 +422,68 @@ class PresensiController extends Controller
                 MAX(IF(DAY(tanggal_presensi) = 29, CONCAT (jam_in, "-", IFNULL(jam_out, "00:00:00")), "")) as tanggal_29,
                 MAX(IF(DAY(tanggal_presensi) = 30, CONCAT (jam_in, "-", IFNULL(jam_out, "00:00:00")), "")) as tanggal_30,
                 MAX(IF(DAY(tanggal_presensi) = 31, CONCAT (jam_in, "-", IFNULL(jam_out, "00:00:00")), "")) as tanggal_31'
-            )->join('karyawan', 'presensi.nuptk', '=', 'karyawan.nuptk')
+            )->join('guru', 'presensi.nuptk', '=', 'guru.nuptk')
             ->whereRaw('MONTH(tanggal_presensi)="' . $bulan . '"')
             ->whereRaw('YEAR(tanggal_presensi)="' . $tahun . '"')
             ->groupByRaw('presensi.nuptk, nama_lengkap')
             ->get();
 
-        return view('presensi.cetakrekap', compact('bulan', 'tahun', 'nama_bulan', 'rekap'));
+        // if (isset($_POST['exportToExcel'])) {
+        //     $time = date("d-M-Y H:i:s");
+        //     // Fungsi header dengan mengirimkan raw data excel
+        //     header("Content-type: application/vnd-ms-excel");
+        //     // Mendefinisikan nama file ekspor "hasil-export.xls"
+        //     header("Content-Disposition: attachment; filename=Rekap Presensi Guru $time.xls");
+        // }
+
+        if ($request->has('exportToExcel')) {
+            $time = now()->format('M-Y');
+            return Excel::download(
+                new RekapPresensiExport($rekap, $bulan, $tahun, $nama_bulan),
+                "Rekap Presensi Guru $time.xlsx"
+            );
+        }
+
+        return view('presensi.cetak_rekap_presensi', compact('bulan', 'tahun', 'nama_bulan', 'rekap'));
     }
 
-    public function izinsakit()
+    public function izinDanSakitGuru(Request $request)
     {
-        $izinsakit = DB::table('pengajuan_izin')
-            ->join('karyawan', 'pengajuan_izin.nuptk', '=', 'karyawan.nuptk')
-            ->orderBy('tanggal_izin', 'desc')
-            ->get();
-        return view('presensi.izinsakit', compact('izinsakit'));
+        $query = PengajuanIzin::query();
+        $query->select('pengajuan_izin.id', 'tanggal_izin', 'pengajuan_izin.nuptk', 'nama_lengkap', 'mapel', 'status', 'status_persetujuan', 'keterangan');
+        $query->join('guru', 'pengajuan_izin.nuptk', '=', 'guru.nuptk');
+
+        if (!empty($request->dari) && !empty($request->sampai)) {
+            $query->whereBetween('tanggal_izin', [$request->dari, $request->sampai]);
+        }
+
+        if (!empty($request->nuptk)) {
+            $query->where('pengajuan_izin.nuptk', $request->nuptk);
+        }
+
+        if (!empty($request->nama_lengkap)) {
+            $query->where('nama_lengkap', 'like', '%' . $request->nama_lengkap . '%');
+        }
+
+        if ($request->status_persetujuan === '0' || $request->status_persetujuan === '1' || $request->status_persetujuan === '2') {
+            $query->where('status_persetujuan', $request->status_persetujuan);
+        }
+
+        $query->orderBy('tanggal_izin', 'desc');
+        $izin_dan_sakit = $query->paginate(10);
+        $izin_dan_sakit->appends($request->all());
+
+        return view('presensi.izin_dan_sakit_guru', compact('izin_dan_sakit'));
     }
 
-    public function approveizinsakit(Request $request)
-    {
-        $status_approve = $request->status_persetujuan;
-        $id_izinsakit_form = $request->id_izinsakit_form;
 
-        $update = DB::table('pengajuan_izin')->where('id', $id_izinsakit_form)->update([
-            'status_persetujuan' => $status_approve
+    public function setujuiIzinDanSakit(Request $request)
+    {
+        $status_persetujuan = $request->status_persetujuan;
+        $id_izin_dan_sakit_form = $request->id_izin_dan_sakit_form;
+
+        $update = DB::table('pengajuan_izin')->where('id', $id_izin_dan_sakit_form)->update([
+            'status_persetujuan' => $status_persetujuan
         ]);
 
         if ($update) {
@@ -535,7 +494,7 @@ class PresensiController extends Controller
     }
 
 
-    public function batalkanizinsakit($id)
+    public function batalkanIzinDanSakit($id)
     {
         $update = DB::table('pengajuan_izin')->where('id', $id)->update([
             'status_persetujuan' => 0
@@ -546,5 +505,14 @@ class PresensiController extends Controller
         } else {
             return Redirect::back()->with(['warning' => 'Data Gagal Di-Update']);
         }
+    }
+
+    public function cekPengajuanIzin(Request $request)
+    {
+        $tanggal_izin = $request->tanggal_izin;
+        $nuptk = Auth::guard('guru')->user()->nuptk;
+
+        $check = DB::table('pengajuan_izin')->where('nuptk', $nuptk)->where('tanggal_izin', $tanggal_izin)->count();
+        return $check;
     }
 }

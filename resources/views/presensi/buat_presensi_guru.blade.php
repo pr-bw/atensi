@@ -131,21 +131,31 @@
 
         function initMap() {
             try {
-                let latitude_kantor = -6.410222;
-                let longitude_kantor = 106.720293;
+                // let latitude_sekolah = -6.410222;
+                // let longitude_sekolah = 106.720293;
+
+                let loc = "{{ $loc_sekolah->lokasi_sekolah }}";
+
+                let location = loc.split(',');
+
+                let latitude_sekolah = location[0];
+                let longitude_sekolah = location[1];
+
+                // alert(latitude_sekolah);
+                // alert(longitude_sekolah);
 
                 let map = new Microsoft.Maps.Map('#map', {
                     center: new Microsoft.Maps.Location(latitude, longitude),
-                    zoom: 15
+                    zoom: 15 // Mungkin perlu disesuaikan untuk menampilkan seluruh area
                 });
 
-                // Add pushpin for the office location
-                let officeLocation = new Microsoft.Maps.Location(latitude_kantor, longitude_kantor);
-                let pushpinOffice = new Microsoft.Maps.Pushpin(officeLocation, {
+                // Add pushpin for the school location
+                let schoolLocation = new Microsoft.Maps.Location(latitude_sekolah, longitude_sekolah);
+                let pushpinSchool = new Microsoft.Maps.Pushpin(schoolLocation, {
                     color: 'red',
                     title: 'Lokasi Sekolah'
                 });
-                map.entities.push(pushpinOffice);
+                map.entities.push(pushpinSchool);
 
                 // Add pushpin for user's current location
                 let userLocation = new Microsoft.Maps.Location(latitude, longitude);
@@ -157,15 +167,17 @@
 
                 // Load the Spatial Math module
                 Microsoft.Maps.loadModule('Microsoft.Maps.SpatialMath', function() {
-                    let center = officeLocation;
-                    let radius = 5; // Radius in meters, you can adjust this as needed
-                    let locations = Microsoft.Maps.SpatialMath.getRegularPolygon(center, radius, 36, Microsoft.Maps
-                        .SpatialMath.GeometryType.Geodesic);
+                    let center = schoolLocation;
+                    let radius = {{ $loc_sekolah->radius }}; // Radius in meters
+                    let numPoints = 36; // Number of points to create the circle (more points = smoother circle)
+
+                    let locations = Microsoft.Maps.SpatialMath.getRegularPolygon(center, radius, numPoints,
+                        Microsoft.Maps.SpatialMath.DistanceUnits.Meters);
 
                     let polygon = new Microsoft.Maps.Polygon(locations, {
-                        fillColor: 'rgba(255, 0, 0, 0.5)',
+                        fillColor: 'rgba(255, 0, 0, 0.2)', // Merah transparan
                         strokeColor: 'red',
-                        strokeThickness: 2
+                        strokeThickness: 1
                     });
 
                     map.entities.push(polygon);
@@ -194,7 +206,7 @@
 
                     $.ajax({
                         type: 'POST',
-                        url: '/karyawan/presensi/simpan-presensi',
+                        url: '/guru/presensi/simpan-presensi',
                         data: {
                             _token: '{{ csrf_token() }}',
                             image: uri,
@@ -227,7 +239,7 @@
                                         "Redirecting to dashboard..."
                                     ); // untuk debugging
                                     window.location.href =
-                                        '/karyawan/dashboard';
+                                        '/guru/dashboard';
                                 });
                             } else {
                                 if (result.type == "radius") {

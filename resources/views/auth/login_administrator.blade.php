@@ -50,6 +50,11 @@
                                     <div class="text-center">
                                         <img src="/assets/img/login/administrator.jpg" class="logo-kominfo">
                                         <h1 class="h4 text-gray-900 mb-4">Welcome, Administrator!</h1>
+                                        {{-- <p>
+                                            @php
+                                                echo Hash::make('adminirawati123');
+                                            @endphp
+                                        </p> --}}
                                     </div>
                                     <!-- Posisi pesan kesalahan -->
                                     <div class="text-center mb-3">
@@ -64,7 +69,8 @@
                                     </div>
                                     <!-- Akhir dari posisi pesan kesalahan -->
 
-                                    <form action="/prosesloginadmin" method="post" class="user">
+                                    <form action="{{ route('administrator.login.process') }}" method="POST"
+                                        class="user">
                                         @csrf
                                         <div class="form-group">
                                             <input type="email" name="email" class="form-control form-control-user"
@@ -75,17 +81,25 @@
                                                 class="form-control form-control-user" id="password"
                                                 placeholder="Password">
                                         </div>
-                                        <div class="form-group">
+                                        {{-- <div class="form-group">
                                             <div class="custom-control custom-checkbox small">
                                                 <input type="checkbox" class="custom-control-input" id="customCheck">
                                                 <label class="custom-control-label" for="customCheck">Remember
                                                     Me</label>
                                             </div>
-                                        </div>
+                                        </div> --}}
                                         <button type="submit" class="btn btn-primary btn-user btn-block">
                                             Login
                                         </button>
                                     </form>
+
+                                    <!-- Back Button -->
+                                    <div class="text-center mt-3 col-6 mx-auto">
+                                        <button type="button" class="btn btn-secondary btn-user btn-block">
+                                            <a href="/" class="text-white">Kembali</a>
+                                        </button>
+                                    </div>
+                                    <!-- End Back Button -->
                                 </div>
                             </div>
                         </div>

@@ -47,9 +47,9 @@
                                             <thead class="thead-dark">
                                                 <tr>
                                                     <th class="text-center" style="white-space: nowrap;">No.</th>
-                                                    <th class="text-center" style="white-space: nowrap;">NIP</th>
-                                                    <th class="text-center" style="white-space: nowrap;">Nama Karyawan</th>
-                                                    <th class="text-center" style="white-space: nowrap;">Jabatan</th>
+                                                    <th class="text-center" style="white-space: nowrap;">NUPTK</th>
+                                                    <th class="text-center" style="white-space: nowrap;">Nama Guru</th>
+                                                    <th class="text-center" style="white-space: nowrap;">Mata Pelajaran</th>
                                                     <th class="text-center" style="white-space: nowrap;">Jam Masuk</th>
                                                     <th class="text-center" style="white-space: nowrap;">Foto Masuk</th>
                                                     <th class="text-center" style="white-space: nowrap;">Jam Pulang</th>
@@ -103,7 +103,7 @@
                 var tanggal = $("#tanggal").val();
                 $.ajax({
                     type: 'POST',
-                    url: '/getpresensi',
+                    url: "{{ route('administrator.presensi.monitoring.rekap-presensi-harian') }}",
                     data: {
                         _token: "{{ csrf_token() }}",
                         tanggal: tanggal

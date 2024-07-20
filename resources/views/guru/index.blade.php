@@ -30,7 +30,7 @@
                                         </div>
                                     @endif
 
-                                    <a href="#" class="btn btn-primary" id="btnTambahKaryawan">
+                                    <a href="#" class="btn btn-primary" id="btnTambahGuru">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                                             viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                             stroke-linecap="round" stroke-linejoin="round"
@@ -45,13 +45,13 @@
                             </div>
                             <div class="row mt-2">
                                 <div class="col-12">
-                                    <form action="/karyawan" method="GET">
+                                    <form action="/administrator/guru" method="GET">
                                         <div class="row">
-                                            <div class="col-6">
+                                            <div class="col-12">
                                                 <div class="form-group">
-                                                    <input type="text" name="nama_karyawan" id="nama_karyawan"
-                                                        class="form-control" placeholder="Nama Karyawan"
-                                                        value="{{ Request('nama_karyawan') }}">
+                                                    <input type="text" name="nama_guru" id="nama_guru"
+                                                        class="form-control" placeholder="Nama guru"
+                                                        value="{{ Request('nama_guru') }}">
                                                 </div>
                                             </div>
                                         </div>
@@ -60,88 +60,95 @@
                             </div>
                             <div class="row mt-2">
                                 <div class="col-12">
-                                    <table class="table table-bordered">
-                                        <thead>
-                                            <tr>
-                                                <th>No</th>
-                                                <th>NIP</th>
-                                                <th>Nama</th>
-                                                <th>Pendidikan</th>
-                                                <th>Jabatan</th>
-                                                <th>No. HP</th>
-                                                <th>Foto</th>
-                                                <th>Aksi</th>
-                                            </tr>
-                                        </thead>
-
-                                        <tbody>
-                                            @foreach ($karyawan as $d)
-                                                @php
-                                                    $path = Storage::url('uploads/karyawan/' . $d->foto);
-                                                @endphp
+                                    <div class="table-responsive">
+                                        <table class="table table-striped table-hover">
+                                            <thead class="thead-dark">
                                                 <tr>
-                                                    <td>{{ $loop->iteration + $karyawan->firstItem() - 1 }}</td>
-                                                    <td>{{ $d->nip }}</td>
-                                                    <td>{{ $d->nama_lengkap }}</td>
-                                                    <td>{{ $d->pendidikan }}</td>
-                                                    <td>{{ $d->jabatan }}</td>
-                                                    <td>{{ $d->nomor_hp }}</td>
-                                                    <td>
-                                                        @if (empty($d->foto))
-                                                            <img src="{{ asset('assets/img/default/default.jpg') }}"
-                                                                alt="no photo" width="70px">
-                                                        @else
-                                                            <img src="{{ url($path) }}" alt="" class="avatar"
-                                                                width="70px">
-                                                        @endif
-                                                    </td>
-
-                                                    <td>
-                                                        <div class="btn-group">
-                                                            <a href="#" class="edit btn btn-info btn-sm"
-                                                                nip="{{ $d->nip }}">
-                                                                <svg xmlns="http://www.w3.org/2000/svg" width="24"
-                                                                    height="24" viewBox="0 0 24 24" fill="none"
-                                                                    stroke="#000000" stroke-width="2" stroke-linecap="round"
-                                                                    stroke-linejoin="round"
-                                                                    class="icon icon-tabler icons-tabler-outline icon-tabler-edit">
-                                                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                                                    <path
-                                                                        d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" />
-                                                                    <path
-                                                                        d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" />
-                                                                    <path d="M16 5l3 3" />
-                                                                </svg>
-                                                            </a>
-
-                                                            <form action="/karyawan/{{ $d->nip }}/delete"
-                                                                method="POST">
-                                                                @csrf
-                                                                <a class="btn btn-danger btn-sm delete-confirm">
+                                                    <th class="text-center" style="white-space: nowrap;">No.</th>
+                                                    <th class="text-center" style="white-space: nowrap;">NUPTK</th>
+                                                    <th class="text-center" style="white-space: nowrap;">Nama</th>
+                                                    <th class="text-center" style="white-space: nowrap;">Jenis Kelamin</th>
+                                                    <th class="text-center" style="white-space: nowrap;">Pendidikan</th>
+                                                    <th class="text-center" style="white-space: nowrap;">Mapel</th>
+                                                    <th class="text-center" style="white-space: nowrap;">No. HP</th>
+                                                    {{-- <th class="text-center" style="white-space: nowrap;">Password</th> --}}
+                                                    <th class="text-center" style="white-space: nowrap;">Foto</th>
+                                                    <th class="text-center" style="white-space: nowrap;">Aksi</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach ($guru as $d)
+                                                    @php
+                                                        $path = Storage::url('public/uploads/guru/' . $d->foto);
+                                                    @endphp
+                                                    <tr>
+                                                        <td class="text-center">
+                                                            {{ $loop->iteration + $guru->firstItem() - 1 }}</td>
+                                                        <td class="text-center">{{ $d->nuptk }}</td>
+                                                        <td class="text-center">{{ $d->nama_lengkap }}</td>
+                                                        <td class="text-center">{{ $d->jenis_kelamin }}</td>
+                                                        <td class="text-center">{{ $d->pendidikan }}</td>
+                                                        <td class="text-center">{{ $d->mapel }}</td>
+                                                        <td class="text-center">{{ $d->nomor_hp }}</td>
+                                                        {{-- <td class="text-center">{{ $d->password }}</td> --}}
+                                                        <td class="text-center">
+                                                            @if (empty($d->foto))
+                                                                <img src="{{ asset('assets/img/default/default.jpg') }}"
+                                                                    alt="no photo" width="70px">
+                                                            @else
+                                                                <img src="{{ url($path) }}" alt=""
+                                                                    class="avatar" width="75px" height="80px">
+                                                            @endif
+                                                        </td>
+                                                        <td class="text-center">
+                                                            <div class="btn-group">
+                                                                <a href="#" class="edit btn btn-info btn-sm"
+                                                                    nuptk="{{ $d->nuptk }}">
                                                                     <svg xmlns="http://www.w3.org/2000/svg" width="24"
                                                                         height="24" viewBox="0 0 24 24" fill="none"
                                                                         stroke="#000000" stroke-width="2"
                                                                         stroke-linecap="round" stroke-linejoin="round"
-                                                                        class="icon icon-tabler icons-tabler-outline icon-tabler-trash">
+                                                                        class="icon icon-tabler icons-tabler-outline icon-tabler-edit">
                                                                         <path stroke="none" d="M0 0h24v24H0z"
                                                                             fill="none" />
-                                                                        <path d="M4 7l16 0" />
-                                                                        <path d="M10 11l0 6" />
-                                                                        <path d="M14 11l0 6" />
                                                                         <path
-                                                                            d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
+                                                                            d="M7 7h-1a2 2 0 0 0 -2 2v9a2 2 0 0 0 2 2h9a2 2 0 0 0 2 -2v-1" />
                                                                         <path
-                                                                            d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
+                                                                            d="M20.385 6.585a2.1 2.1 0 0 0 -2.97 -2.97l-8.415 8.385v3h3l8.385 -8.415z" />
+                                                                        <path d="M16 5l3 3" />
                                                                     </svg>
                                                                 </a>
-                                                            </form>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            @endforeach
-                                        </tbody>
-                                    </table>
-                                    {{ $karyawan->links('vendor.pagination.bootstrap-5') }}
+                                                                <form
+                                                                    action="/administrator/guru/{{ $d->nuptk }}/hapus"
+                                                                    method="POST">
+                                                                    @csrf
+                                                                    <a class="btn btn-danger btn-sm delete-confirm">
+                                                                        <svg xmlns="http://www.w3.org/2000/svg"
+                                                                            width="24" height="24"
+                                                                            viewBox="0 0 24 24" fill="none"
+                                                                            stroke="#000000" stroke-width="2"
+                                                                            stroke-linecap="round" stroke-linejoin="round"
+                                                                            class="icon icon-tabler icons-tabler-outline icon-tabler-trash">
+                                                                            <path stroke="none" d="M0 0h24v24H0z"
+                                                                                fill="none" />
+                                                                            <path d="M4 7l16 0" />
+                                                                            <path d="M10 11l0 6" />
+                                                                            <path d="M14 11l0 6" />
+                                                                            <path
+                                                                                d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12" />
+                                                                            <path
+                                                                                d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3" />
+                                                                        </svg>
+                                                                    </a>
+                                                                </form>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    {{ $guru->links('vendor.pagination.bootstrap-5') }}
                                 </div>
                             </div>
                         </div>
@@ -151,13 +158,13 @@
         </div>
     </div>
 
-    <!-- Modal tambah karyawan -->
-    <div class="modal modal-blur fade" id="modal-tambahKaryawan" tabindex="-1" role="dialog"
-        aria-labelledby="modal-tambahKaryawanLabel" aria-hidden="true">
+    <!-- Modal tambah Guru -->
+    <div class="modal modal-blur fade" id="modal-tambahGuru" tabindex="-1" role="dialog"
+        aria-labelledby="modal-tambahGuruLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Tambah Data Karyawan</h5>
+                    <h5 class="modal-title" id="exampleModalLabel">Tambah Data Guru</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -169,14 +176,14 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    <form action="/karyawan/store" method="POST" id="frmKaryawan" enctype="multipart/form-data">
+                    <form action="/administrator/guru/tambah-data-guru" method="POST" id="frmGuru"
+                        enctype="multipart/form-data">
                         @csrf
                         <div class="row">
                             <div class="col-12">
                                 <div class="input-group mb-3">
                                     <div class="input-group-prepend">
                                         <span class="input-group-text">
-                                            <!-- Download SVG icon from http://tabler-icons.io/i/user -->
                                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                                                 viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
@@ -193,8 +200,8 @@
                                             </svg>
                                         </span>
                                     </div>
-                                    <input type="text" class="form-control" id="nip" name="nip"
-                                        placeholder="Nomor Induk Pegawai">
+                                    <input type="text" class="form-control" id="nuptk" name="nuptk"
+                                        placeholder="Nomor Unik Pendidik dan Tenaga Kependidikan">
                                 </div>
                             </div>
                         </div>
@@ -204,7 +211,6 @@
                                 <div class="input-group mb-3">
                                     <div class="input-group-prepend">
                                         <span class="input-group-text">
-                                            <!-- Download SVG icon from http://tabler-icons.io/i/user -->
                                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                                                 viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
@@ -230,7 +236,6 @@
                                 <div class="input-group mb-3">
                                     <div class="input-group-prepend">
                                         <span class="input-group-text">
-                                            <!-- Ikoni SVG dari http://tabler-icons.io/i/user -->
                                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                                                 viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
@@ -242,8 +247,13 @@
                                         </span>
                                     </div>
                                     <select class="form-control" id="pendidikan" name="pendidikan">
+                                        <option value="SMA">SMA</option>
+                                        <option value="SMK">SMK</option>
+                                        <option value="D I">D I</option>
+                                        <option value="D II">D II</option>
                                         <option value="D III">D III</option>
-                                        <option value="D IV/S1">D IV/S1</option>
+                                        <option value="D IV">D IV</option>
+                                        <option value="S1">S1</option>
                                         <option value="S2">S2</option>
                                         <option value="S3">S3</option>
                                     </select>
@@ -256,7 +266,6 @@
                                 <div class="input-group mb-3">
                                     <div class="input-group-prepend">
                                         <span class="input-group-text">
-                                            <!-- Download SVG icon from http://tabler-icons.io/i/user -->
                                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                                                 viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
@@ -268,8 +277,8 @@
                                             </svg>
                                         </span>
                                     </div>
-                                    <input type="text" class="form-control" id="jabatan" name="jabatan"
-                                        placeholder="Jabatan">
+                                    <input type="text" class="form-control" id="mapel" name="mapel"
+                                        placeholder="Mata Pelajaran">
                                 </div>
                             </div>
                         </div>
@@ -279,7 +288,6 @@
                                 <div class="input-group mb-3">
                                     <div class="input-group-prepend">
                                         <span class="input-group-text">
-                                            <!-- Download SVG icon from http://tabler-icons.io/i/user -->
                                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
                                                 viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
@@ -291,47 +299,53 @@
                                         </span>
                                     </div>
                                     <input type="text" class="form-control" id="nomor_hp" name="nomor_hp"
-                                        placeholder="Nomor Handphone">
+                                        placeholder="Nomor HP">
                                 </div>
                             </div>
                         </div>
 
-                        <div class="row mt-2">
+                        <div class="row">
                             <div class="col-12">
-                                <input type="file" name="foto" class="form-control">
+                                <div class="input-group mb-3">
+                                    <div class="input-group-prepend">
+                                        <span class="input-group-text">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                                viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                                class="icon icon-tabler icons-tabler-outline icon-tabler-image">
+                                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                                <path
+                                                    d="M3 4m0 2a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2z" />
+                                                <path d="M10 10l2 -2l2 2" />
+                                                <path d="M4 8l8 8l4 -4l4 4" />
+                                            </svg>
+                                        </span>
+                                    </div>
+                                    <input type="file" class="form-control" id="foto" name="foto"
+                                        accept=".jpg, .jpeg, .png">
+                                </div>
                             </div>
                         </div>
-                </div>
 
-                <div class="row mt-2">
-                    <div class="col-12">
-                        <div class="form-group">
-                            <button class="btn btn-primary w-100">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                    stroke-linecap="round" stroke-linejoin="round"
-                                    class="icon icon-tabler icons-tabler-outline icon-tabler-send">
-                                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-                                    <path d="M10 14l11 -11" />
-                                    <path d="M21 3l-6.5 18a.55 .55 0 0 1 -1 0l-3.5 -7l-7 -3.5a.55 .55 0 0 1 0 -1l18 -6.5" />
-                                </svg>
-                                Simpan</button>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                            <button type="submit" class="btn btn-primary">Simpan</button>
                         </div>
-                    </div>
+                    </form>
                 </div>
-                </form>
             </div>
         </div>
     </div>
-    </div>
+    <!-- end Modal tambah Guru -->
 
-    <!-- Modal edit karyawan -->
-    <div class="modal modal-blur fade" id="modal-editKaryawan" tabindex="-1" role="dialog"
-        aria-labelledby="editKaryawanModalLabel" aria-hidden="true">
+
+    <!-- Modal edit guru -->
+    <div class="modal modal-blur fade" id="modal-editGuru" tabindex="-1" role="dialog"
+        aria-labelledby="editGuruModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title" id="editKaryawanModalLabel">Edit Data Karyawan</h5>
+                    <h5 class="modal-title" id="editGuruModalLabel">Edit Data Guru</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -353,20 +367,20 @@
 @push('myscript')
     <script>
         $(function() {
-            $("#btnTambahKaryawan").click(function() {
-                $("#modal-tambahKaryawan").modal("show");
+            $("#btnTambahGuru").click(function() {
+                $("#modal-tambahGuru").modal("show");
             });
 
             $(".edit").click(function() {
-                let nip = $(this).attr('nip');
+                let nuptk = $(this).attr('nuptk');
 
                 $.ajax({
                     type: 'POST',
-                    url: '{{ route('karyawan.edit') }}',
+                    url: '{{ route('administrator.guru.ubah-data') }}',
                     cache: false,
                     data: {
                         _token: "{{ csrf_token() }}",
-                        nip: nip
+                        nuptk: nuptk
                     },
                     success: function(response) {
                         $("#loadEditForm").html(response);
@@ -375,7 +389,7 @@
                         console.error("AJAX error:", xhr.responseText);
                     }
                 });
-                $("#modal-editKaryawan").modal("show");
+                $("#modal-editGuru").modal("show");
             });
 
             $(".delete-confirm").click(function(e) {
@@ -384,7 +398,7 @@
                 e.preventDefault();
 
                 Swal.fire({
-                    title: "Apakah Anda Yakin Ingin Menghapus Data Karyawan Ini?",
+                    title: "Apakah Anda Yakin Ingin Menghapus Data Guru Ini?",
                     text: "Data Akan Dihapus Secara Permanen",
                     icon: "warning",
                     showCancelButton: true,
@@ -396,28 +410,29 @@
                         form.submit();
                         Swal.fire({
                             title: "Deleted!",
-                            text: "Data Karyawan Berhasil Dihapus.",
+                            text: "Data Guru Berhasil Dihapus.",
                             icon: "success"
                         });
                     }
                 });
             });
 
-            $("#frmKaryawan").submit(function() {
-                let nip = $("#nip").val();
+            $("#frmGuru").submit(function() {
+                let nuptk = $("#nuptk").val();
                 let nama_lengkap = $("#nama_lengkap").val();
                 let pendidikan = $("#pendidikan").val();
-                let jabatan = $("#jabatan").val();
+                let mapel = $("#mapel").val();
                 let nomor_hp = $("#nomor_hp").val();
+                let foto = $("#foto").val();
 
-                if (nip === "") {
+                if (nuptk === "") {
                     Swal.fire({
                         title: 'Warning!',
-                        text: 'NIP Harus Diisi',
+                        text: 'NUPTK Harus Diisi',
                         icon: 'warning',
                         confirmButtonText: 'Ok'
                     }).then((result) => {
-                        $("#nip").focus();
+                        $("#nuptk").focus();
                     })
 
                     return false;
@@ -432,10 +447,21 @@
                     })
 
                     return false;
+                } else if (jenis_kelamin === "") {
+                    Swal.fire({
+                        title: 'Warning!',
+                        text: 'Jenis Kelamin Harus Diisi',
+                        icon: 'warning',
+                        confirmButtonText: 'Ok'
+                    }).then((result) => {
+                        $("#jenis_kelamin").focus();
+                    })
+
+                    return false;
                 } else if (pendidikan === "") {
                     Swal.fire({
                         title: 'Warning!',
-                        text: 'Nama Harus Diisi',
+                        text: 'Pendidikan Harus Diisi',
                         icon: 'warning',
                         confirmButtonText: 'Ok'
                     }).then((result) => {
@@ -443,25 +469,36 @@
                     })
 
                     return false;
-                } else if (jabatan === "") {
+                } else if (mapel === "") {
                     Swal.fire({
                         title: 'Warning!',
-                        text: 'Nama Harus Diisi',
+                        text: 'Mata Pelajaran Harus Diisi',
                         icon: 'warning',
                         confirmButtonText: 'Ok'
                     }).then((result) => {
-                        $("#jabatan").focus();
+                        $("#mapel").focus();
                     })
 
                     return false;
                 } else if (nomor_hp === "") {
                     Swal.fire({
                         title: 'Warning!',
-                        text: 'Nama Harus Diisi',
+                        text: 'Nomor Handphone Harus Diisi',
                         icon: 'warning',
                         confirmButtonText: 'Ok'
                     }).then((result) => {
                         $("#nomor_hp").focus();
+                    })
+
+                    return false;
+                } else if (foto === "") {
+                    Swal.fire({
+                        title: 'Warning!',
+                        text: 'Harus Melampirkan Foto',
+                        icon: 'warning',
+                        confirmButtonText: 'Ok'
+                    }).then((result) => {
+                        $("#foto").focus();
                     })
 
                     return false;

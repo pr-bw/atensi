@@ -62,7 +62,7 @@
 @section('content')
     <div class="row" style="margin-top:70px">
         <div class="col">
-            <form method="POST" action="/karyawan/presensi/simpanIzin" id="form_izin">
+            <form method="POST" action="/guru/presensi/simpan-izin" id="form_izin">
                 @csrf
                 <div class="form-group">
                     <input type="text" id="tanggal_izin" name="tanggal_izin" class="form-control datepicker"
@@ -90,30 +90,75 @@
     <script>
         $(document).ready(function() {
             $(".datepicker").datepicker({
-                format: "yyyy-mm-dd",
-                showClearBtn: false,
-                onClose: function() {
-                    setTimeout(function() {
-                        $('.datepicker-footer').css({
-                            display: 'flex',
-                            justifyContent: 'flex-end',
-                            padding: '10px 20px',
-                            borderTop: '1px solid #ddd'
-                        });
+                format: "yyyy-mm-dd"
+            });
 
-                        $('.datepicker-footer .btn-flat').each(function(index, element) {
-                            let buttonText = $(element).text().toLowerCase();
-                            if (buttonText === 'cancel' || buttonText === 'batal') {
-                                $(element).addClass('btn-cancel');
-                            } else if (buttonText === 'ok') {
-                                $(element).addClass('btn-ok');
+            $("#tanggal_izin").change(function(e) {
+                let tanggal_izin = $(this).val();
+
+                $.ajax({
+                    type: 'POST',
+                    url: '/guru/presensi/cek-pengajuan-izin',
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        tanggal_izin: tanggal_izin
+                    },
+                    cache: false,
+                    success: function(response) {
+                        if (response == 1) {
+                            Swal.fire({
+                                title: 'Oops !',
+                                text: 'Anda Sudah Melakukan Pengajuan Izin Pada Tanggal Tersebut',
+                                icon: 'warning'
+                            }).then((result) => {
+                                $("#tanggal_izin").val("");
+                            });
+                        }
+                    }
+                })
+            });
+
+
+            $("#form_izin").submit(function(e) {
+                e.preventDefault();
+
+                Swal.fire({
+                    title: 'Konfirmasi',
+                    text: "Apakah Anda yakin ingin mengirim pengajuan izin ini?",
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Ya, Kirim!',
+                    cancelButtonText: 'Batal'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Jika user mengkonfirmasi, kirim form
+                        $.ajax({
+                            url: $(this).attr('action'),
+                            method: $(this).attr('method'),
+                            data: $(this).serialize(),
+                            success: function(response) {
+                                Swal.fire(
+                                    'Berhasil!',
+                                    'Pengajuan izin Anda telah berhasil dikirim.',
+                                    'success'
+                                ).then((result) => {
+                                    // Redirect atau reset form sesuai kebutuhan
+                                    window.location.href =
+                                        '/guru/dashboard'; // Ganti dengan URL yang sesuai
+                                });
+                            },
+                            error: function(xhr) {
+                                Swal.fire(
+                                    'Gagal!',
+                                    'Terjadi kesalahan saat mengirim pengajuan izin.',
+                                    'error'
+                                );
                             }
                         });
-
-                        // Menghapus tombol Clear jika masih ada
-                        $('.datepicker-footer .btn-flat:contains("clear")').hide();
-                    }, 0);
-                }
+                    }
+                });
             });
         });
     </script>

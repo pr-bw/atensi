@@ -43,9 +43,9 @@ return [
             'provider' => 'administrators',
         ],
 
-        'karyawan' => [
+        'guru' => [
             'driver' => 'session',
-            'provider' => 'karyawans',
+            'provider' => 'gurus',
         ],
 
         'administrator' => [
@@ -77,9 +77,9 @@ return [
             'model' => \App\Models\Administrator::class,
         ],
 
-        'karyawans' => [
+        'gurus' => [
             'driver' => 'eloquent',
-            'model' => env('AUTH_MODEL', \App\Models\Karyawan::class),
+            'model' => env('AUTH_MODEL', \App\Models\Guru::class),
         ],
     ],
 
@@ -99,6 +99,13 @@ return [
     */
 
     'passwords' => [
+        'administrators' => [
+            'provider' => 'administrators',
+            'table' => 'password_resets',
+            'expire' => 60,
+            'throttle' => 60,
+        ],
+
         'users' => [
             'provider' => 'users',
             'table' => 'password_resets',

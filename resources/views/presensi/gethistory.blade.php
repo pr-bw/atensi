@@ -1,6 +1,13 @@
 @if ($history->isEmpty())
-    <div class="alert alert-outline-warning">
-        <p>Data Belum Ada</p>
+    <div class="alert alert-danger alert-dismissible fade show mb-3" role="alert">
+        <div class="d-flex align-items-center">
+            <ion-icon name="alert-circle-outline" class="mr-2" style="font-size: 24px;"></ion-icon>
+            <strong>Data Belum Ada</strong>
+        </div>
+        <p class="mb-0 mt-2">Belum ada riwayat presensi yang tersedia untuk periode ini.</p>
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
     </div>
 @else
     @foreach ($history as $d)

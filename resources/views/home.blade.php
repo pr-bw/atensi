@@ -13,7 +13,7 @@
         body {
             /* background-color: #f8f9fa; */
             /* background-image: url('/assets/img/login/v960-ning-31.jpg'); */
-            background-image: url('/assets/img/login/smpislamparung.jpg');
+            background-image: url('/assets/img/login/smpislamparungg.jpg');
             background-size: cover;
             display: flex;
             align-items: center;
@@ -53,13 +53,13 @@
 
 <body>
     <div class="login-container text-center">
-        <img src="/assets/img/login/spmislamparung.png" alt="SMP Islam Parung Logo" class="logo">
-        <h2 class="mb-3">Sistem Presensi Karyawan</h2>
+        <img src="/assets/img/login/logo-smpislamparung.png" alt="SMP Islam Parung Logo" class="logo">
+        <h2 class="mb-3">Sistem Presensi Guru</h2>
         <p class="text-muted mb-4">SMP Islam Parung</p>
 
         <div class="d-grid gap-3">
-            <a href="{{ route('login.karyawan') }}" class="btn btn-primary btn-login">
-                <i class="fas fa-user"></i> <span>Login Karyawan</span>
+            <a href="{{ route('login.guru') }}" class="btn btn-primary btn-login">
+                <i class="fas fa-user"></i> <span>Login Guru</span>
             </a>
             <a href="{{ route('login.administrator') }}" class="btn btn-secondary btn-login">
                 <i class="fas fa-user-cog"></i> <span>Login Administrator</span>

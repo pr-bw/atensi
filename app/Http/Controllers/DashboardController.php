@@ -13,7 +13,7 @@ class DashboardController extends Controller
         $hari_ini = date("Y-m-d");
         $bulan_ini = date("m") * 1;
         $tahun_ini = date("Y");
-        $nuptk = Auth::guard('karyawan')->user()->nuptk;
+        $nuptk = Auth::guard('guru')->user()->nuptk;
         $presensi_hari_ini = DB::table('presensi')->where('nuptk', $nuptk)->where('tanggal_presensi', $hari_ini)->first();
         $history_bulan_ini = DB::table('presensi')->where('nuptk', $nuptk)->whereRaw('MONTH(tanggal_presensi)="' . $bulan_ini . '"')
             ->whereRaw('YEAR(tanggal_presensi)="' . $tahun_ini . '"')
@@ -28,7 +28,7 @@ class DashboardController extends Controller
             ->first();
 
         $leaderboard = DB::table('presensi')
-            ->join('karyawan', 'presensi.nuptk', '=', 'karyawan.nuptk')
+            ->join('guru', 'presensi.nuptk', '=', 'guru.nuptk')
             ->where('tanggal_presensi', $hari_ini)
             ->orderBy('jam_in')
             ->get();
@@ -43,10 +43,10 @@ class DashboardController extends Controller
             ->where('status_persetujuan', 1)
             ->first();
 
-        return view('dashboard.dashboard_karyawan', compact('presensi_hari_ini', 'history_bulan_ini', 'nama_bulan', 'bulan_ini', 'tahun_ini', 'rekap_presensi', 'leaderboard', 'rekap_izin'));
+        return view('dashboard.dashboard_guru', compact('presensi_hari_ini', 'history_bulan_ini', 'nama_bulan', 'bulan_ini', 'tahun_ini', 'rekap_presensi', 'leaderboard', 'rekap_izin'));
     }
 
-    public function dashboardAdmin()
+    public function dashboardAdministrator()
     {
         $hari_ini = date("Y-m-d");
 
@@ -61,6 +61,6 @@ class DashboardController extends Controller
             ->where('status_persetujuan', 1)
             ->first();
 
-        return view('dashboard.dashboardadmin', compact('rekap_presensi', 'rekap_izin'));
+        return view('dashboard.dashboard_administrator', compact('rekap_presensi', 'rekap_izin'));
     }
 }

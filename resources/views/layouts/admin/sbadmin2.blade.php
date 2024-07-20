@@ -7,6 +7,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="description" content="">
     <meta name="author" content="">
+    <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
 
     <title>Dashboard Admin</title>
 
@@ -129,7 +130,7 @@
                 <div class="modal-footer">
                     <button class="btn btn-secondary" type="button" data-dismiss="modal">Batal</button>
                     <!-- Form untuk melakukan logout -->
-                    <form id="logout-form" action="{{ route('logoutadmin') }}" method="POST">
+                    <form id="logout-form" action="{{ route('administrator.logout') }}" method="POST">
                         @csrf
                         <button class="btn btn-primary" type="submit">Logout</button>
                     </form>

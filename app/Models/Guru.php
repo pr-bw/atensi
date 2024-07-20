@@ -6,11 +6,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-class Karyawan extends Authenticatable
+class Guru extends Authenticatable
 {
     use HasFactory, Notifiable;
 
-    protected $table = "karyawan";
+    protected $table = "guru";
     protected $primaryKey = "id";
 
     public $timestamps = false; // Tambahkan baris ini
@@ -21,13 +21,14 @@ class Karyawan extends Authenticatable
      * @var array<int, string>
      */
     protected $fillable = [
-        'nip',
+        'nuptk',
         'nama_lengkap',
+        'jenis_kelamin',
         'pendidikan',
-        'jabatan',
+        'mapel',
         'nomor_hp',
-        'foto',
         'password',
+        'foto',
     ];
 
     /**

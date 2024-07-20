@@ -24,11 +24,11 @@
             font-size: 18px;
         }
 
-        .tabeldatakaryawan {
+        .tabeldataguru {
             margin-top: 40px;
         }
 
-        .tabeldatakaryawan td {
+        .tabeldataguru td {
             padding: 5px;
         }
 
@@ -63,22 +63,24 @@
 <!-- Set also "landscape" if you need -->
 
 <body class="A4 landscape">
-    @php
-        function selisih($jam_masuk, $jam_keluar)
-        {
-            [$h, $m, $s] = explode(':', $jam_masuk);
-            $dtAwal = mktime($h, $m, $s, '1', '1', '1');
-            [$h, $m, $s] = explode(':', $jam_keluar);
-            $dtAkhir = mktime($h, $m, $s, '1', '1', '1');
-            $dtSelisih = $dtAkhir - $dtAwal;
-            $totalmenit = $dtSelisih / 60;
-            $jam = explode('.', $totalmenit / 60);
-            $sisamenit = $totalmenit / 60 - $jam[0];
-            $sisamenit2 = $sisamenit * 60;
-            $jml_jam = $jam[0];
-            return $jml_jam . ':' . round($sisamenit2);
-        }
-    @endphp
+    @if (!function_exists('selisih'))
+        @php
+            function selisih($jam_masuk, $jam_keluar)
+            {
+                [$h, $m, $s] = explode(':', $jam_masuk);
+                $dtAwal = mktime($h, $m, $s, '1', '1', '1');
+                [$h, $m, $s] = explode(':', $jam_keluar);
+                $dtAkhir = mktime($h, $m, $s, '1', '1', '1');
+                $dtSelisih = $dtAkhir - $dtAwal;
+                $totalmenit = $dtSelisih / 60;
+                $jam = explode('.', $totalmenit / 60);
+                $sisamenit = $totalmenit / 60 - $jam[0];
+                $sisamenit2 = $sisamenit * 60;
+                $jml_jam = $jam[0];
+                return $jml_jam . ':' . round($sisamenit2);
+            }
+        @endphp
+    @endif
 
     <!-- Each sheet element should have the class "sheet" -->
     <!-- "padding-**mm" is optional: you can set 10, 15, 20 or 25 -->
@@ -92,7 +94,7 @@
 
                 <td>
                     <span id="title">
-                        LAPORAN PRESENSI KARYAWAN<br />
+                        LAPORAN PRESENSI GURU<br />
                         PERIODE {{ strtoupper($nama_bulan[$bulan]) }} {{ $tahun }}<br />
                         SMP ISLAM PARUNG<br />
                     </span>
@@ -103,13 +105,13 @@
 
         <table class="tabelpresensi">
             <tr>
-                <th rowspan="2">NIP</th>
-                <th rowspan="2">Nama Karyawan</th>
+                <th rowspan="2">NUPTK</th>
+                <th rowspan="2">Nama Guru</th>
                 <th colspan="31">Tanggal</th>
                 {{-- total hadir --}}
-                <th rowspan="2">TH</th>
+                <th rowspan="2">Total Hadir</th>
                 {{-- total terlambat --}}
-                <th rowspan="2">TT</th>
+                <th rowspan="2">Total Terlambat</th>
             </tr>
 
             <tr>
@@ -124,7 +126,7 @@
 
             @foreach ($rekap as $d)
                 <tr>
-                    <td>{{ $d->nip }}</td>
+                    <td>'{{ ' ' . $d->nuptk }}</td>
                     <td>{{ $d->nama_lengkap }}</td>
 
                     <?php
@@ -145,9 +147,11 @@
                     }
                 ?>
                     <td>
+                        {{-- jika presensi masuk lebih dari 07:30 maka dianggap telat (berwarna merah) --}}
                         <span style="color: {{ $hadir[0] > '07:30:00' ? 'red' : '' }}">{{ $hadir[0] }}</span>
                         <br />
-                        <span style="color: {{ $hadir[1] < '13:00:00' ? 'red' : '' }}">{{ $hadir[0] }}</span>
+                        {{-- jika presensi pulang kurang dari 13:00 maka dianggap telat (berwarna merah) --}}
+                        <span style="color: {{ $hadir[1] < '13:00:00' ? 'red' : '' }}">{{ $hadir[1] }}</span>
                     </td>
                     <?php 
                 } // Menutup for loop
@@ -161,24 +165,38 @@
 
         <table width="100%" style="margin-top:100px">
             <tr>
-                <td></td>
-                <td colspan="2" style="text-align: center">Parung, Bogor, {{ date('d-m-Y') }}</td>
-            </tr>
-
-            <tr>
-                <td style="text-align:center; vertical-align: bottom;" height="100px">
-                    <u>Liliani Hamim</u>
-                    <br />
-                    <i><b>Staff Tata Usaha</b></i>
-                </td>
-
-                <td style="text-align: center; vertical-align: bottom">
+                <td style="text-align: center; vertical-align: bottom;" width="50%">
                     <u>Rahmat Hermawan, S.Pd</u>
                     <br />
+                    <br />
+                    <br />
+                    <br />
+                    <br />
+                    <br />
+                    <br />
+                    <br />
                     <i><b>Kepala Sekolah</b></i>
+                    <br />
+                    <i><b>NUPTK. 2551753656200013</b></i>
+                </td>
+                <td style="text-align: center; vertical-align: bottom;" width="50%">
+                    <div style="margin-bottom: 15px;">
+                        Bogor, {{ date('d-m-Y') }}
+                    </div>
+                    <u>Liliani Hamim</u>
+                    <br />
+                    <br />
+                    <br />
+                    <br />
+                    <br />
+                    <br />
+                    <br />
+                    <br />
+                    <i><b>Staff Tata Usaha</b></i>
+                    <br />
+                    <i><b>NUPTK. 20200543168001</b></i>
                 </td>
             </tr>
-
         </table>
     </section>
 

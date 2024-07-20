@@ -21,19 +21,19 @@
     <div class="section" id="user-section" style="background-color: #FFC7ED">
         <div id="user-detail">
             <div class="avatar">
-                @if (!empty(Auth::guard('karyawan')->user()->foto))
+                @if (!empty(Auth::guard('guru')->user()->foto))
                     @php
-                        $path = Storage::url('uploads/karyawan/' . Auth::guard('karyawan')->user()->foto);
+                        $path = Storage::url('uploads/guru/' . Auth::guard('guru')->user()->foto);
                     @endphp
                     <img src="{{ url($path) }}" alt="avatar" class="imaged rounded" style="height: 70px; width: 70px;">
                 @else
-                    <img src="{{ asset('assets/img/sample/avatar/avatar1.jpg') }}" alt="avatar" class="imaged w64 rounded">
+                    <img src="{{ asset('assets/img/default/default.jpg') }}" alt="avatar" class="imaged w64 rounded">
                 @endif
             </div>
 
             <div id="user-info">
-                <h2 id="user-name">{{ Auth::guard('karyawan')->user()->nama_lengkap }}</h2>
-                <span id="user-role">{{ Auth::guard('karyawan')->user()->jabatan }}</span>
+                <h2 id="user-name">{{ Auth::guard('guru')->user()->nama_lengkap }}</h2>
+                <span id="user-role">{{ Auth::guard('guru')->user()->mapel }}</span>
             </div>
         </div>
     </div>
@@ -215,7 +215,7 @@
                                         <div>
                                             <b>{{ $d->nama_lengkap }}</b>
                                             <br />
-                                            <small class="text-muted">{{ $d->jabatan }}</small>
+                                            <small class="text-muted">{{ $d->mapel }}</small>
                                         </div>
                                         <span class="badge {{ $d->jam_in < '07:30' ? 'bg-success' : 'bg-danger' }}">
                                             {{ $d->jam_in }}

@@ -9,7 +9,7 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
-    <title>Sipresen - Login</title>
+    <title>Atensi - Login</title>
 
     <!-- Custom fonts for this template-->
     <link href="{{ asset('sbadmin2/vendor/fontawesome-free/css/all.min.css') }}" rel="stylesheet" type="text/css">
@@ -43,9 +43,15 @@
                             <div class="col-lg-6">
                                 <div class="p-5">
                                     <div class="text-center">
-                                        <img src="/assets/img/login/spmislamparung.png" style="width: 180px"
-                                            class="logo-spmislamparung">
+                                        <img src="/assets/img/login/logo-smpislamparung.png" style="width: 180px"
+                                            class="logo-smpislamparung">
                                         <h1 class="h4 text-gray-900 mb-4">Selamat Datang</h1>
+
+                                        {{-- <p>
+                                            @php
+                                                echo Hash::make('aditya123');
+                                            @endphp
+                                        </p> --}}
                                     </div>
                                     <!-- Posisi pesan kesalahan -->
                                     <div class="text-center mb-3">
@@ -60,7 +66,7 @@
                                     </div>
                                     <!-- Akhir dari posisi pesan kesalahan -->
 
-                                    <form action="{{ route('karyawan.login.process') }}" method="POST" class="user">
+                                    <form action="{{ route('guru.login.process') }}" method="POST" class="user">
                                         @csrf
                                         <div class="form-group">
                                             <input type="text" name="nuptk" class="form-control form-control-user"
@@ -71,17 +77,25 @@
                                                 class="form-control form-control-user" id="password"
                                                 placeholder="Kata Sandi">
                                         </div>
-                                        <div class="form-group">
+                                        {{-- <div class="form-group">
                                             <div class="custom-control custom-checkbox small">
                                                 <input type="checkbox" class="custom-control-input" id="customCheck">
                                                 <label class="custom-control-label" for="customCheck">Remember
                                                     Me</label>
                                             </div>
-                                        </div>
+                                        </div> --}}
                                         <button type="submit" class="btn btn-primary btn-user btn-block">
                                             Login
                                         </button>
                                     </form>
+
+                                    <!-- Back Button -->
+                                    <div class="text-center mt-3 col-6 mx-auto">
+                                        <button type="button" class="btn btn-secondary btn-user btn-block">
+                                            <a href="/" class="text-white">Kembali</a>
+                                        </button>
+                                    </div>
+                                    <!-- End Back Button -->
                                 </div>
                             </div>
                         </div>

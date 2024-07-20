@@ -24,11 +24,11 @@
             font-size: 18px;
         }
 
-        .tabeldatakaryawan {
+        .tabeldataguru {
             margin-top: 40px;
         }
 
-        .tabeldatakaryawan td {
+        .tabeldataguru td {
             padding: 5px;
         }
 
@@ -58,29 +58,26 @@
     </style>
 </head>
 
-<!-- Set "A5", "A4" or "A3" for class name -->
-<!-- Set also "landscape" if you need -->
-
 <body class="A4">
-    @php
-        function selisih($jam_masuk, $jam_keluar)
-        {
-            [$h, $m, $s] = explode(':', $jam_masuk);
-            $dtAwal = mktime($h, $m, $s, '1', '1', '1');
-            [$h, $m, $s] = explode(':', $jam_keluar);
-            $dtAkhir = mktime($h, $m, $s, '1', '1', '1');
-            $dtSelisih = $dtAkhir - $dtAwal;
-            $totalmenit = $dtSelisih / 60;
-            $jam = explode('.', $totalmenit / 60);
-            $sisamenit = $totalmenit / 60 - $jam[0];
-            $sisamenit2 = $sisamenit * 60;
-            $jml_jam = $jam[0];
-            return $jml_jam . ':' . round($sisamenit2);
-        }
-    @endphp
+    @if (!function_exists('selisih'))
+        @php
+            function selisih($jam_masuk, $jam_keluar)
+            {
+                [$h, $m, $s] = explode(':', $jam_masuk);
+                $dtAwal = mktime($h, $m, $s, '1', '1', '1');
+                [$h, $m, $s] = explode(':', $jam_keluar);
+                $dtAkhir = mktime($h, $m, $s, '1', '1', '1');
+                $dtSelisih = $dtAkhir - $dtAwal;
+                $totalmenit = $dtSelisih / 60;
+                $jam = explode('.', $totalmenit / 60);
+                $sisamenit = $totalmenit / 60 - $jam[0];
+                $sisamenit2 = $sisamenit * 60;
+                $jml_jam = $jam[0];
+                return $jml_jam . ':' . round($sisamenit2);
+            }
+        @endphp
+    @endif
 
-    <!-- Each sheet element should have the class "sheet" -->
-    <!-- "padding-**mm" is optional: you can set 10, 15, 20 or 25 -->
     <section class="sheet padding-10mm">
         <table style="width: 100%">
             <tr>
@@ -91,7 +88,7 @@
 
                 <td>
                     <span id="title">
-                        LAPORAN PRESENSI KARYAWAN<br />
+                        LAPORAN PRESENSI GURU<br />
                         PERIODE {{ strtoupper($nama_bulan[$bulan]) }} {{ $tahun }}<br />
                         SMP ISLAM PARUNG<br />
                     </span>
@@ -100,43 +97,43 @@
             </tr>
         </table>
 
-        <table class="tabeldatakaryawan">
+        <table class="tabeldataguru">
             <tr>
                 <td rowspan="6">
                     @php
-                        $path = Storage::url('uploads/karyawan/' . $karyawan->foto);
+                        $path = Storage::url('uploads/guru/' . $guru->foto);
                     @endphp
-                    <img src="{{ url($path) }}" alt="Foto Karyawan" width="110" height="150">
+                    <img src="{{ url($path) }}" alt="Foto guru" width="110" height="150">
                 </td>
             </tr>
             <tr>
-                <td>NIP</td>
+                <td>NUPTK</td>
                 <td> : </td>
-                <td>{{ $karyawan->nip }}</td>
+                <td>{{ $guru->nuptk }}</td>
             </tr>
 
             <tr>
-                <td>Nama Karyawan</td>
+                <td>Nama guru</td>
                 <td> : </td>
-                <td>{{ $karyawan->nama_lengkap }}</td>
+                <td>{{ $guru->nama_lengkap }}</td>
             </tr>
 
             <tr>
                 <td>Pendidikan</td>
                 <td> : </td>
-                <td>{{ $karyawan->pendidikan }}</td>
+                <td>{{ $guru->pendidikan }}</td>
             </tr>
 
             <tr>
-                <td>Jabatan</td>
+                <td>Mapel</td>
                 <td> : </td>
-                <td>{{ $karyawan->jabatan }}</td>
+                <td>{{ $guru->mapel }}</td>
             </tr>
 
             <tr>
                 <td>Nomor Telepon</td>
                 <td> : </td>
-                <td>{{ $karyawan->nomor_hp }}</td>
+                <td>{{ $guru->nomor_hp }}</td>
             </tr>
         </table>
 
@@ -162,7 +159,7 @@
                     <td>{{ $loop->iteration }}</td>
                     <td>{{ date('d-m-Y', strtotime($d->tanggal_presensi)) }}</td>
                     <td>{{ $d->jam_in }}</td>
-                    <td><img src="{{ url($path_in) }}" alt="Foto Karyawan Masuk" class="foto"></td>
+                    <td><img src="{{ url($path_in) }}" alt="Foto guru Masuk" class="foto"></td>
                     <td>{{ $d->jam_out != null ? $d->jam_out : 'Belum Presensi' }}</td>
                     <td>
                         @if ($d->jam_out != null)
@@ -197,26 +194,40 @@
 
         <table width="100%" style="margin-top:100px">
             <tr>
-                <td colspan="2" style="text-align: right">Bogor, {{ date('d-m-Y') }}</td>
-            </tr>
-
-            <tr>
-                <td style="text-align:center; vertical-align: bottom;" height="100px">
+                <td style="text-align: center; vertical-align: bottom;" width="50%">
                     <u>Rahmat Hermawan, S.Pd</u>
                     <br />
+                    <br />
+                    <br />
+                    <br />
+                    <br />
+                    <br />
+                    <br />
+                    <br />
                     <i><b>Kepala Sekolah</b></i>
+                    <br />
+                    <i><b>NUPTK. 2551753656200013</b></i>
                 </td>
-
-                <td style="text-align: center; vertical-align: bottom">
+                <td style="text-align: center; vertical-align: bottom;" width="50%">
+                    <div style="margin-bottom: 15px;">
+                        Bogor, {{ date('d-m-Y') }}
+                    </div>
                     <u>Liliani Hamim</u>
                     <br />
+                    <br />
+                    <br />
+                    <br />
+                    <br />
+                    <br />
+                    <br />
+                    <br />
                     <i><b>Staff Tata Usaha</b></i>
+                    <br />
+                    <i><b>NUPTK. 20200543168001</b></i>
                 </td>
             </tr>
-
         </table>
     </section>
-
 </body>
 
 </html>

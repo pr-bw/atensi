@@ -23,9 +23,9 @@
 
     <tr>
         <td style="white-space: nowrap;">{{ $loop->iteration }}</td>
-        <td style="white-space: nowrap;">{{ $d->nip }}</td>
+        <td style="white-space: nowrap;">{{ $d->nuptk }}</td>
         <td style="white-space: nowrap;">{{ $d->nama_lengkap }}</td>
-        <td style="white-space: nowrap;">{{ $d->jabatan }}</td>
+        <td style="white-space: nowrap;">{{ $d->mapel }}</td>
         <td style="white-space: nowrap;">{{ $d->jam_in }}</td>
         <td style="white-space: nowrap;">
             <img src="{{ url($fotoIn) }}" style="width: 50px;" alt="">
